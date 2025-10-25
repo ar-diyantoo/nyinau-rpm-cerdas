@@ -8,6 +8,7 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
+import CreateRPM from "./pages/CreateRPM";  // ← NEW IMPORT
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -20,9 +21,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<Index />} />
           <Route path="/signup" element={<Signup />} />
           <Route path="/login" element={<Login />} />
+          
+          {/* Protected Routes */}
           <Route 
             path="/dashboard" 
             element={
@@ -31,6 +35,17 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          
+          {/* NEW: RPM Creation Route */}
+          <Route 
+            path="/dashboard/create" 
+            element={
+              <ProtectedRoute>
+                <CreateRPM />
+              </ProtectedRoute>
+            } 
+          />
+          
           <Route 
             path="/dashboard/profile" 
             element={
@@ -39,6 +54,7 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
+          
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -48,3 +64,4 @@ const App = () => (
 );
 
 export default App;
+
