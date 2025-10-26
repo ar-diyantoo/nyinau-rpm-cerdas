@@ -2,13 +2,15 @@ import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Star } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const ChatboxAI = () => {
   const [chat, setChat] = useState([
-    { user: "bot", message: "Tanya apa saja untuk generate RPP/RPM secara otomatis ✨" },
+    { user: "bot", message: "Tanya apa saja untuk generate RPP/RPM secara otomatis ⭐" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [alreadyTrial, setAlreadyTrial] = useState(false);
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -16,7 +18,7 @@ const ChatboxAI = () => {
   }, [chat, loading]);
 
   const handleSend = async () => {
-    if (!input.trim()) return;
+    if (!input.trim() || loading || alreadyTrial) return;
     setChat((prev) => [...prev, { user: "user", message: input }]);
     setLoading(true);
     setInput("");
@@ -31,11 +33,14 @@ const ChatboxAI = () => {
         ...prev,
         { user: "bot", message: data.result || "Gagal generate, coba lagi!" },
       ]);
+      // Setelah 1x AI generate, lock trial
+      setAlreadyTrial(true);
     } catch {
       setChat((prev) => [
         ...prev,
         { user: "bot", message: "Terjadi error proses AI. Coba lagi bentar ya!" },
       ]);
+      setAlreadyTrial(true);
     }
     setLoading(false);
   };
@@ -66,24 +71,37 @@ const ChatboxAI = () => {
         )}
         <div ref={bottomRef} />
       </div>
-      <form
-        className="flex gap-2 border-t px-4 py-3"
-        onSubmit={e => {
-          e.preventDefault();
-          handleSend();
-        }}
-      >
-        <Input
-          className="flex-1"
-          placeholder="Coba: Buatkan RPP IPA SMP tema organ tumbuhan"
-          value={input}
-          disabled={loading}
-          onChange={e => setInput(e.target.value)}
-        />
-        <Button type="submit" disabled={loading || !input.trim()}>
-          Kirim
-        </Button>
-      </form>
+      {alreadyTrial ? (
+        <div className="flex flex-col items-center border-t px-4 py-4 space-y-3">
+          <span className="text-center text-sm text-muted-foreground">
+            Ingin akses AI tanpa batas dan fitur penuh lainnya?
+          </span>
+          <Button asChild className="w-full">
+            <Link to="/signup">
+              Daftar &amp; Masuk Nyinauidn
+            </Link>
+          </Button>
+        </div>
+      ) : (
+        <form
+          className="flex gap-2 border-t px-4 py-3"
+          onSubmit={e => {
+            e.preventDefault();
+            handleSend();
+          }}
+        >
+          <Input
+            className="flex-1"
+            placeholder="Coba: Buatkan RPP IPA SMP tema organ tumbuhan"
+            value={input}
+            disabled={loading}
+            onChange={e => setInput(e.target.value)}
+          />
+          <Button type="submit" disabled={loading || !input.trim()}>
+            Kirim
+          </Button>
+        </form>
+      )}
     </div>
   );
 };
