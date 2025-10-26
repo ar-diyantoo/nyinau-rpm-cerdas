@@ -229,10 +229,80 @@ ${plan.generated_content}
         </div>
       </header>
 
-      {/* ... lanjutkan bagian statistik, filter, mapping card persis seperti kode sebelumnya ... */}
-
       <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* ...statistik, quick actions, filter bar, dst... */}
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            Selamat datang kembali, {userData?.full_name || user?.email || "Guru"}! 👋
+          </h1>
+          <p className="text-muted-foreground">Apa yang ingin Anda buat hari ini?</p>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-2xl font-bold">{stats.total}</p>
+                  <p className="text-sm text-muted-foreground">Total RPM</p>
+                  <p className="text-xs text-muted-foreground mt-1">Semua waktu</p>
+                </div>
+                <FileText className="w-8 h-8 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-2xl font-bold">{stats.thisWeek}</p>
+                  <p className="text-sm text-muted-foreground">RPM Minggu Ini</p>
+                  <p className="text-xs text-muted-foreground mt-1">7 hari terakhir</p>
+                </div>
+                <TrendingUp className="w-8 h-8 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-2xl font-bold">{stats.avgTime}</p>
+                  <p className="text-sm text-muted-foreground">Rata-rata Waktu</p>
+                  <p className="text-xs text-muted-foreground mt-1">Per RPM</p>
+                </div>
+                <Clock className="w-8 h-8 text-primary opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-2xl font-bold">{stats.productivity}</p>
+                  <p className="text-sm text-muted-foreground">Produktivitas</p>
+                  <p className="text-xs text-muted-foreground mt-1">Vs bulan lalu</p>
+                </div>
+                <BarChart3 className="w-8 h-8 text-success opacity-50" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button asChild size="lg" className="flex-1">
+            <Link to="/dashboard/create">
+              <Plus className="w-5 h-5 mr-2" />
+              Buat RPM Baru
+            </Link>
+          </Button>
+          <Button asChild variant="outline" size="lg" className="flex-1 sm:flex-none">
+            <Link to="/dashboard/templates">
+              <FileText className="w-5 h-5 mr-2" />
+              Lihat Template
+            </Link>
+          </Button>
+        </div>
+
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-2xl font-bold">RPM Saya</h2>
@@ -253,7 +323,44 @@ ${plan.generated_content}
               </Button>
             </div>
           </div>
-          {/* ...filter bar dll... */}
+
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Cari RPM..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10"
+              />
+            </div>
+            <Select value={filterJenjang} onValueChange={setFilterJenjang}>
+              <SelectTrigger className="w-full md:w-40">
+                <SelectValue placeholder="Jenjang" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua</SelectItem>
+                <SelectItem value="SD">SD</SelectItem>
+                <SelectItem value="SMP">SMP</SelectItem>
+                <SelectItem value="SMA">SMA</SelectItem>
+                <SelectItem value="SMK">SMK</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterFase} onValueChange={setFilterFase}>
+              <SelectTrigger className="w-full md:w-40">
+                <SelectValue placeholder="Fase" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Semua</SelectItem>
+                <SelectItem value="A">Fase A</SelectItem>
+                <SelectItem value="B">Fase B</SelectItem>
+                <SelectItem value="C">Fase C</SelectItem>
+                <SelectItem value="D">Fase D</SelectItem>
+                <SelectItem value="E">Fase E</SelectItem>
+                <SelectItem value="F">Fase F</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* RPM Cards/List */}
           {loading ? (
@@ -322,8 +429,6 @@ ${plan.generated_content}
                         year: 'numeric'
                       })}
                     </p>
-
-                    {/* Action Buttons */}
                     <div className="flex gap-2 pt-2">
                       <Button size="sm" variant="outline" asChild className="flex-1">
                         <Link to={`/dashboard/edit/${plan.id}`}>
@@ -352,8 +457,6 @@ ${plan.generated_content}
           )}
         </div>
       </div>
-
-      {/* Delete Confirmation Dialog */}
       <AlertDialog open={!!deleteId} onOpenChange={(open) => !open && setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
