@@ -8,7 +8,8 @@ import Signup from "./pages/Signup";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
-import CreateRPM from "./pages/CreateRPM";  // ← NEW IMPORT
+import CreateRPM from "./pages/CreateRPM";
+import EditRPM from "./pages/EditRPM"; // <-- INI YANG BARU
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 
@@ -36,7 +37,7 @@ const App = () => (
             } 
           />
           
-          {/* NEW: RPM Creation Route */}
+          {/* RPM Creation Route */}
           <Route 
             path="/dashboard/create" 
             element={
@@ -45,7 +46,17 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
-          
+
+          {/* RPM Edit Route (BARU) */}
+          <Route 
+            path="/dashboard/edit/:id" 
+            element={
+              <ProtectedRoute>
+                <EditRPM />
+              </ProtectedRoute>
+            } 
+          />
+
           <Route 
             path="/dashboard/profile" 
             element={
@@ -54,8 +65,8 @@ const App = () => (
               </ProtectedRoute>
             } 
           />
-          
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+
+          {/* Catch-All NotFound */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
@@ -64,4 +75,3 @@ const App = () => (
 );
 
 export default App;
-
