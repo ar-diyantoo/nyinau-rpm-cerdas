@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Zap, Target, Edit, FileText, Palette, BarChart3, Smartphone, Lock, Download } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import ChatboxAI from '@/components/ChatboxAI';
 
 const Landing = () => {
   const scrollToFeatures = () => {
@@ -21,7 +22,7 @@ const Landing = () => {
           </p>
           <p className="text-lg text-muted-foreground">
             Transform curriculum into actionable, reflective lesson plans in minutes
-          </p>
+          </p> 
           <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
             <Button asChild size="lg" className="text-lg px-8">
               <Link to="/signup">Mulai Gratis Sekarang</Link>
@@ -29,6 +30,9 @@ const Landing = () => {
             <Button variant="outline" size="lg" className="text-lg px-8" onClick={scrollToFeatures}>
               Pelajari Lebih Lanjut
             </Button>
+          </div>
+          <div className="mt-8 flex justify-center">
+              <ChatboxAI />
           </div>
         </div>
       </section>
