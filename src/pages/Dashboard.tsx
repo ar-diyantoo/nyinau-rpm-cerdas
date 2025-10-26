@@ -131,6 +131,45 @@ const Dashboard = () => {
       .toUpperCase()
       .slice(0, 2);
   };
+  const handleDownloadRPM = (plan: any) => {
+  // Validasi data RPM
+  if (!plan || !plan.generated_content) {
+    toast.error("RPM belum tersedia atau kosong!");
+    return;
+  }
+  // Susun konten HTML untuk export/download
+  const content = `
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>RPM - ${plan.title}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #888; padding: 10px; }
+    th { background: #0077cc; color: #fff; }
+    h1, h2, h3 { color: #333; }
+  </style>
+</head>
+<body>
+${plan.generated_content}
+</body>
+</html>
+`;
+  // Proses blob dan download
+  const blob = new Blob([content], { type: "text/html" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `RPM-${plan.title || "output"}-${Date.now()}.html`;
+  a.click();
+  // Bersihkan URL untuk efisiensi memory browser
+  URL.revokeObjectURL(url);
+  // Feedback ke user
+  toast.success("File RPM berhasil didownload!");
+};
+
 
   return (
     <div className="min-h-screen bg-background">
