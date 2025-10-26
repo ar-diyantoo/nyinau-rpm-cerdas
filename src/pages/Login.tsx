@@ -23,27 +23,27 @@ const Login = () => {
   }, [user, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const cleanEmail = email.trim().toLowerCase();
+  e.preventDefault();
+  const cleanEmail = email.trim().toLowerCase();
 
-    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail);
-    if (!emailValid) {
-      toast.error('Format email tidak valid');
-      return;
-    }
-    if (password.length < 8) {
-      toast.error('Password minimal 8 karakter');
-      return;
-    }
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail);
+  if (!emailValid) {
+    toast.error('Format email tidak valid');
+    return;
+  }
+  if (password.length < 8) {
+    toast.error('Password minimal 8 karakter');
+    return;
+  }
 
-    setLoading(true);
-    const { error } = await signIn(cleanEmail, password);
-    setLoading(false);
+  setLoading(true);
+  const { error } = await signIn(cleanEmail, password);
+  setLoading(false);
 
-    if (!error) {
-      navigate('/dashboard');
-    }
-  };
+  if (!error) {
+    navigate('/dashboard');
+  }
+};
 
   const handleGoogleLogin = async () => {
     setLoading(true);
