@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, LogIn, Mail } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Login = () => {
   const [email, setEmail] = useState('');
@@ -23,12 +24,22 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) return;
-    
+    const cleanEmail = email.trim().toLowerCase();
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail);
+    if (!emailValid) {
+      toast.error('Format email tidak valid');
+      return;
+    }
+    if (password.length < 8) {
+      toast.error('Password minimal 8 karakter');
+      return;
+    }
+
     setLoading(true);
-    const { error } = await signIn(email, password);
+    const { error } = await signIn(cleanEmail, password);
     setLoading(false);
-    
+
     if (!error) {
       navigate('/dashboard');
     }

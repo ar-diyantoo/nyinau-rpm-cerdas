@@ -33,27 +33,31 @@ export const useAuth = () => {
   const signUp = async (email: string, password: string, fullName: string) => {
     try {
       const redirectUrl = `${window.location.origin}/`;
-      
+      const cleanEmail = email.trim().toLowerCase();
+      const cleanName = fullName.trim();
+
       const { data, error } = await supabase.auth.signUp({
-        email,
+        email: cleanEmail,
         password,
         options: {
           emailRedirectTo: redirectUrl,
           data: {
-            full_name: fullName,
+            full_name: cleanName,
           },
         },
       });
 
       if (error) {
-        if (error.message.includes('User already registered')) {
+        if (error.message?.toLowerCase().includes('registered')) {
           toast.error('Email sudah terdaftar. Silakan login atau gunakan email lain.');
+        } else if (error.message?.toLowerCase().includes('password')) {
+          toast.error('Password terlalu lemah. Gunakan minimal 8 karakter.');
         } else {
           toast.error(error.message || 'Gagal membuat akun');
         }
         throw error;
       }
-      
+
       toast.success('Akun berhasil dibuat! Silakan login.');
       return { data, error: null };
     } catch (error: any) {
@@ -63,22 +67,24 @@ export const useAuth = () => {
 
   const signIn = async (email: string, password: string) => {
     try {
+      const cleanEmail = email.trim().toLowerCase();
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: cleanEmail,
         password,
       });
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Email atau password salah. Pastikan Anda sudah daftar terlebih dahulu.');
-        } else if (error.message.includes('Email not confirmed')) {
-          toast.error('Email belum dikonfirmasi. Cek inbox email Anda.');
+        const msg = (error.message || '').toLowerCase();
+        if (msg.includes('invalid login credentials')) {
+          toast.error('Email atau password salah. Coba lagi atau daftar akun baru.');
+        } else if (msg.includes('email not confirmed')) {
+          toast.error('Email belum dikonfirmasi. Cek inbox/spam untuk verifikasi.');
         } else {
           toast.error(error.message || 'Gagal masuk');
         }
         throw error;
       }
-      
+
       toast.success('Berhasil masuk!');
       return { data, error: null };
     } catch (error: any) {

@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useAuth } from '@/hooks/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, UserPlus, Mail, User, School } from 'lucide-react';
+import { toast } from 'sonner';
 
 const Signup = () => {
   const [email, setEmail] = useState('');
@@ -37,11 +38,29 @@ const Signup = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!agreedToTerms) {
+      toast.error('Anda harus menyetujui syarat & ketentuan');
+      return;
+    }
+
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanName = fullName.trim();
+
+    const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(cleanEmail);
+    if (!emailValid) {
+      toast.error('Format email tidak valid');
+      return;
+    }
+    if (cleanName.length < 2) {
+      toast.error('Nama lengkap terlalu pendek');
+      return;
+    }
+    if (password.length < 8) {
+      toast.error('Password minimal 8 karakter');
       return;
     }
     
     setLoading(true);
-    const { error } = await signUp(email, password, fullName);
+    const { error } = await signUp(cleanEmail, password, cleanName);
     setLoading(false);
     
     if (!error) {
