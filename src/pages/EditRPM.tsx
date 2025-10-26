@@ -11,12 +11,12 @@ const EditRPM = () => {
   const [generatedRPM, setGeneratedRPM] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Fungsi generate menggunakan AI Gemini (Lovable built-in)
+  // Fungsi generate hanya menggunakan Lovable AI bawaan (tanpa API key eksternal)
   const handleGenerateRPM = async () => {
     setLoading(true);
     setGeneratedRPM("");
     try {
-      // Prompt terstruktur untuk Gemini
+      // Prompt terstruktur, langsung untuk Lovable AI
       const prompt = `
 Buatkan Rancangan Pembelajaran Mingguan (RPM) berbasis Deep Learning untuk guru dengan data:
 Nama Sekolah: ${schoolName}
@@ -31,15 +31,16 @@ Format keluaran HTML terstruktur lengkap:
 1. Identitas
 2. Capaian Pembelajaran
 3. Tujuan Pembelajaran
-4. Kegiatan Pembelajaran (dalam bentuk tabel 5 hari)
+4. Kegiatan Pembelajaran (tabel 5 hari)
 5. Asesmen
 6. Refleksi
 
-HTML harus siap langsung untuk download dan dibuka di browser.
+HTML siap download dan dibuka di browser.
 `;
 
-      // Endpoint AI Lovable, pastikan sesuai spesifikasi project
-      const response = await fetch("/api/generate", {
+      // Endpoint Lovable AI. Lovable biasanya sudah expose AI endpoint secara otomatis di backend project.
+      // Biasanya endpoint: /api/ai/generate  - sesuaikan jika perlu!
+      const response = await fetch("/api/ai/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt }),
@@ -48,7 +49,7 @@ HTML harus siap langsung untuk download dan dibuka di browser.
       const data = await response.json();
       setGeneratedRPM(data.content || "");
     } catch (error) {
-      alert("Gagal generate RPM. Pastikan Lovable AI sudah aktif.");
+      alert("Gagal generate RPM. Pastikan AI Lovable telah aktif.");
     } finally {
       setLoading(false);
     }
@@ -90,10 +91,9 @@ ${generatedRPM}
     URL.revokeObjectURL(url);
   };
 
-
   return (
     <div style={{ maxWidth: 600, margin: "32px auto", padding: 24, background: "#F4FBFD", borderRadius: 12 }}>
-      <h2>Edit & Generate RPM dengan AI Gemini</h2>
+      <h2>Edit & Generate RPM (AI Lovable)</h2>
       <div style={{ marginBottom: 16 }}>
         <label>Nama Sekolah</label>
         <input value={schoolName} onChange={e => setSchoolName(e.target.value)} placeholder="Nama Sekolah" style={{ width: "100%" }} />
