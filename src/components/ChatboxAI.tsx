@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const ChatboxAI = () => {
   const [chat, setChat] = useState([
-    { user: "bot", message: "Tanya apa saja untuk generate RPP/RPM secara otomatis ⭐" },
+    { user: "bot", message: "Tanya apa saja (misal: 'Buatkan RPP Matematika SD tema perbandingan'), jawaban AI hanya 1x, selanjutnya silakan daftar akun ✨" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -23,22 +23,28 @@ const ChatboxAI = () => {
     setLoading(true);
     setInput("");
     try {
+      // Contoh fetch backend AI (dummy dulu kalau belum connect api)
+      // ganti URL ini dengan endpoint API AI-mu
       const res = await fetch("/api/generate-chat-rpp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: input }),
       });
-      const data = await res.json();
+      let data;
+      if (res.ok) {
+        data = await res.json();
+      } else {
+        data = { result: "Gagal connect ke AI. Coba di fitur member!" };
+      }
       setChat((prev) => [
         ...prev,
         { user: "bot", message: data.result || "Gagal generate, coba lagi!" },
       ]);
-      // Setelah 1x AI generate, lock trial
       setAlreadyTrial(true);
     } catch {
       setChat((prev) => [
         ...prev,
-        { user: "bot", message: "Terjadi error proses AI. Coba lagi bentar ya!" },
+        { user: "bot", message: "Terjadi error proses AI. Coba fitur member!" },
       ]);
       setAlreadyTrial(true);
     }
@@ -71,37 +77,37 @@ const ChatboxAI = () => {
         )}
         <div ref={bottomRef} />
       </div>
-      {alreadyTrial ? (
-        <div className="flex flex-col items-center border-t px-4 py-4 space-y-3">
-          <span className="text-center text-sm text-muted-foreground">
-            Ingin akses AI tanpa batas dan fitur penuh lainnya?
-          </span>
-          <Button asChild className="w-full">
-            <Link to="/signup">
-              Daftar &amp; Masuk Nyinauidn
-            </Link>
-          </Button>
-        </div>
-      ) : (
-        <form
-          className="flex gap-2 border-t px-4 py-3"
-          onSubmit={e => {
-            e.preventDefault();
-            handleSend();
-          }}
-        >
-          <Input
-            className="flex-1"
-            placeholder="Coba: Buatkan RPP IPA SMP tema organ tumbuhan"
-            value={input}
-            disabled={loading}
-            onChange={e => setInput(e.target.value)}
-          />
-          <Button type="submit" disabled={loading || !input.trim()}>
-            Kirim
-          </Button>
-        </form>
-      )}
+        {alreadyTrial ? (
+          <div className="flex flex-col items-center border-t px-4 py-4 space-y-3">
+            <span className="text-center text-sm text-muted-foreground">
+              Sudah mencoba trial. <b>Ingin akses AI tanpa batas dan fitur penuh lainnya?</b>
+            </span>
+            <Button asChild className="w-full">
+              <Link to="/signup">
+                Daftar &amp; Masuk Nyinauidn
+              </Link>
+            </Button>
+          </div>
+        ) : (
+          <form
+            className="flex gap-2 border-t px-4 py-3"
+            onSubmit={e => {
+              e.preventDefault();
+              handleSend();
+            }}
+          >
+            <Input
+              className="flex-1"
+              placeholder="Coba: Buatkan RPP IPA SMP tema organ tumbuhan"
+              value={input}
+              disabled={loading}
+              onChange={e => setInput(e.target.value)}
+            />
+            <Button type="submit" disabled={loading || !input.trim()}>
+              Kirim
+            </Button>
+          </form>
+        )}
     </div>
   );
 };
