@@ -1,202 +1,170 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "sonner";
-
-function cleanAIGeneratedText(text: string) {
-  return text
-    .replace(/^(\*|-|\d+\.)\s+/gm, "")
-    .replace(/\*\*(.*?)\*\*/g, "$1")
-    .replace(/\*(.*?)\*/g, "$1")
-    .replace(/_(.*?)_/g, "$1")
-    .replace(/`(.*?)`/g, "$1")
-    .replace(/\n{2,}/g, "\n\n")
-    .trim();
-}
+import React, { useState } from "react";
 
 const EditRPM = () => {
-  const { id } = useParams<{ id: string }>();
-  const [rpm, setRpm] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  // Header
   const [schoolName, setSchoolName] = useState("");
-  const [teacherName, setTeacherName] = useState("");
-  const [jenjang, setJenjang] = useState("");
-  const [faseKelas, setFaseKelas] = useState("");
-  const [semester, setSemester] = useState("");
   const [subject, setSubject] = useState("");
-  const [topic, setTopic] = useState("");
+  const [grade, setGrade] = useState("");
+  const [semester, setSemester] = useState("");
+  const [week, setWeek] = useState("");
   const [duration, setDuration] = useState("");
+  const [topic, setTopic] = useState("");
+  const [generatedRPM, setGeneratedRPM] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  // Section 1: Identifikasi
-  const [pesertaDidik, setPesertaDidik] = useState("");
-  const [materiPelajaran, setMateriPelajaran] = useState("");
-  const [profilLulusan, setProfilLulusan] = useState("");
+  // Fungsi generate menggunakan AI Gemini (Lovable built-in)
+  const handleGenerateRPM = async () => {
+    setLoading(true);
+    setGeneratedRPM("");
+    try {
+      // Prompt terstruktur untuk Gemini
+      const prompt = `
+Buatkan Rancangan Pembelajaran Mingguan (RPM) berbasis Deep Learning untuk guru dengan data:
+Nama Sekolah: ${schoolName}
+Mata Pelajaran: ${subject}
+Kelas: ${grade}
+Semester: ${semester}
+Minggu Ke: ${week}
+Durasi: ${duration}
+Topik/Materi Pokok: ${topic}
 
-  // Section 2: Desain Pembelajaran
-  const [capaian, setCapaian] = useState("");
-  const [lintasDisiplin, setLintasDisiplin] = useState("");
-  const [tujuan, setTujuan] = useState("");
-  const [topik, setTopik] = useState("");
-  const [praktikPedagogis, setPraktikPedagogis] = useState("");
-  const [kemitraan, setKemitraan] = useState("");
-  const [lingkungan, setLingkungan] = useState("");
-  const [pemanfaatanDigital, setPemanfaatanDigital] = useState("");
+Format keluaran HTML terstruktur lengkap:
+1. Identitas
+2. Capaian Pembelajaran
+3. Tujuan Pembelajaran
+4. Kegiatan Pembelajaran (dalam bentuk tabel 5 hari)
+5. Asesmen
+6. Refleksi
 
-  // Section 3: Pengalaman Belajar
-  const [kegiatanAwal, setKegiatanAwal] = useState("");
-  const [kegiatanInti, setKegiatanInti] = useState("");
-  const [kegiatanPenutup, setKegiatanPenutup] = useState("");
+HTML harus siap langsung untuk download dan dibuka di browser.
+`;
 
-  // Section 4: Asesmen Pembelajaran
-  const [asesmenAwal, setAsesmenAwal] = useState("");
-  const [asesmenProses, setAsesmenProses] = useState("");
-  const [asesmenAkhir, setAsesmenAkhir] = useState("");
+      // Endpoint AI Lovable, pastikan sesuai spesifikasi project
+      const response = await fetch("/api/generate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ prompt }),
+      });
 
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!id) return;
-    const fetchRpm = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from("lesson_plans")
-        .select("*")
-        .eq("id", id)
-        .single();
-      if (error) {
-        toast.error("Gagal memuat RPM");
-        navigate("/dashboard");
-        return;
-      }
-      setRpm(data);
-      setSchoolName(data.satuan_pendidikan ?? "");
-      setTeacherName(data.teacher_name ?? data.full_name ?? "");
-      setJenjang(data.jenjang ?? "");
-      setFaseKelas(data.fase ?? "");
-      setSemester(data.semester ?? "");
-      setSubject(data.subject ?? "");
-      setTopic(data.topic ?? "");
-      setDuration(data.duration_jp ? `${data.duration_jp} JP` : "");
-      setPesertaDidik(data.student_readiness ?? "");
-      setMateriPelajaran(data.materi_characteristics ?? "");
-      setProfilLulusan(Array.isArray(data.profil_pelajar_pancasila) ? data.profil_pelajar_pancasila.join(", ") : data.profil_pelajar_pancasila ?? "");
-      setCapaian(cleanAIGeneratedText(data.capaian_pembelajaran ?? ""));
-      setLintasDisiplin(data.cross_disciplinary_integration ?? "");
-      setTujuan(cleanAIGeneratedText(data.learning_objectives ?? ""));
-      setTopik(data.topic ?? "");
-      setPraktikPedagogis(data.learning_approach ? data.learning_approach.join(", ") : "");
-      setKemitraan(data.kemitraan ?? "");
-      setLingkungan(data.lingkungan ?? "");
-      setPemanfaatanDigital(data.pemanfaatan_digital ?? "");
-      setKegiatanAwal(cleanAIGeneratedText(data.activities_opening ?? ""));
-      setKegiatanInti(cleanAIGeneratedText(data.activities_core ?? ""));
-      setKegiatanPenutup(cleanAIGeneratedText(data.activities_closing ?? ""));
-      setAsesmenAwal(cleanAIGeneratedText(data.assessment_initial ?? ""));
-      setAsesmenProses(cleanAIGeneratedText(data.assessment_formative ?? ""));
-      setAsesmenAkhir(cleanAIGeneratedText(data.assessment_summative ?? ""));
+      const data = await response.json();
+      setGeneratedRPM(data.content || "");
+    } catch (error) {
+      alert("Gagal generate RPM. Pastikan Lovable AI sudah aktif.");
+    } finally {
       setLoading(false);
-    };
-    fetchRpm();
-  }, [id, navigate]);
-
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaving(true);
-    const { error } = await supabase
-      .from("lesson_plans")
-      .update({
-        satuan_pendidikan: schoolName,
-        teacher_name: teacherName,
-        jenjang,
-        fase: faseKelas,
-        semester,
-        subject,
-        topic,
-        duration_jp: duration,
-        student_readiness: pesertaDidik,
-        materi_characteristics: materiPelajaran,
-        profil_pelajar_pancasila: profilLulusan.split(",").map(e => e.trim()),
-        capaian_pembelajaran: cleanAIGeneratedText(capaian),
-        cross_disciplinary_integration: lintasDisiplin,
-        learning_objectives: cleanAIGeneratedText(tujuan),
-        learning_approach: praktikPedagogis.split(",").map(e => e.trim()),
-        kemitraan,
-        lingkungan,
-        pemanfaatan_digital: pemanfaatanDigital,
-        activities_opening: cleanAIGeneratedText(kegiatanAwal),
-        activities_core: cleanAIGeneratedText(kegiatanInti),
-        activities_closing: cleanAIGeneratedText(kegiatanPenutup),
-        assessment_initial: cleanAIGeneratedText(asesmenAwal),
-        assessment_formative: cleanAIGeneratedText(asesmenProses),
-        assessment_summative: cleanAIGeneratedText(asesmenAkhir),
-      })
-      .eq("id", id);
-    setSaving(false);
-    if (error) {
-      toast.error("Gagal menyimpan perubahan");
-    } else {
-      toast.success("RPM berhasil disimpan!");
-      navigate("/dashboard");
     }
   };
 
+  // Fungsi download HTML
   const handleDownloadHTML = () => {
-    const section = document.getElementById("rpm-download-section");
-    if (!section) return;
-    const blob = new Blob([`
-      <html><head><meta charset="UTF-8"></head><body>${section.innerHTML}</body></html>
-    `], { type: "text/html" });
+    if (!generatedRPM) {
+      alert("Belum ada RPM yang berhasil digenerate!");
+      return;
+    }
+
+    const content = `
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>RPM - ${schoolName}</title>
+  <style>
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin:auto; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #888; padding: 10px; }
+    th { background: #0077cc; color: #fff; }
+    h1, h2, h3 { color: #333;}
+  </style>
+</head>
+<body>
+${generatedRPM}
+</body>
+</html>
+`;
+
+    const blob = new Blob([content], { type: "text/html" });
+    const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = `RPP-RPM-${schoolName || "output"}.html`;
+    a.href = url;
+    a.download = `RPM-${schoolName || "output"}-${Date.now()}.html`;
     a.click();
+    URL.revokeObjectURL(url);
   };
 
-  const handleCopyToClipboard = () => {
-    const section = document.getElementById("rpm-download-section");
-    if (!section) return;
-    navigator.clipboard.writeText(section.innerText).then(
-      () => toast.success("Teks sudah disalin ke clipboard!"),
-      () => toast.error("Gagal menyalin!")
-    );
-  };
-
-  if (loading) return <div className="p-8 text-center">Memuat data RPM...</div>;
-  if (!rpm) return null;
 
   return (
-    <div className="max-w-3xl mx-auto py-8 px-2">
-      <Card>
-        <CardHeader>
-          <CardTitle>Edit Rencana Pembelajaran Mendalam</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSave} className="space-y-6">
-          {/* Download & Copy Buttons */}
-          <div className="mb-4 flex gap-2 flex-wrap">
-            <Button type="button" variant="outline" onClick={handleDownloadHTML}>
-              Download HTML
-            </Button>
-            <Button type="button" variant="outline" onClick={handleCopyToClipboard}>
-              Salin ke Clipboard
-            </Button>
-          </div>
-          <div id="rpm-download-section">
-            {/* HEADER, IDENTIFIKASI, DESAIN, dll - layout sama seperti skrip sebelumnya */}
-          </div>
-          <Button type="submit" className="w-full mt-6" loading={saving}>
-            Simpan Perubahan
-          </Button>
-          </form>
-        </CardContent>
-      </Card>
+    <div style={{ maxWidth: 600, margin: "32px auto", padding: 24, background: "#F4FBFD", borderRadius: 12 }}>
+      <h2>Edit & Generate RPM dengan AI Gemini</h2>
+      <div style={{ marginBottom: 16 }}>
+        <label>Nama Sekolah</label>
+        <input value={schoolName} onChange={e => setSchoolName(e.target.value)} placeholder="Nama Sekolah" style={{ width: "100%" }} />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label>Mata Pelajaran</label>
+        <input value={subject} onChange={e => setSubject(e.target.value)} placeholder="Mata Pelajaran" style={{ width: "100%" }} />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label>Kelas</label>
+        <input value={grade} onChange={e => setGrade(e.target.value)} placeholder="Kelas" style={{ width: "100%" }} />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label>Semester</label>
+        <input value={semester} onChange={e => setSemester(e.target.value)} placeholder="Semester" style={{ width: "100%" }} />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label>Minggu Ke</label>
+        <input value={week} onChange={e => setWeek(e.target.value)} placeholder="Minggu Ke" style={{ width: "100%" }} />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label>Durasi (jam pelajaran)</label>
+        <input value={duration} onChange={e => setDuration(e.target.value)} placeholder="Durasi (misal: 5x40 menit)" style={{ width: "100%" }} />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label>Topik/Materi</label>
+        <input value={topic} onChange={e => setTopic(e.target.value)} placeholder="Topik/Materi Pokok" style={{ width: "100%" }} />
+      </div>
+
+      <button
+        onClick={handleGenerateRPM}
+        disabled={loading}
+        style={{
+          background: "#379FFF",
+          color: "white",
+          marginBottom: 24,
+          padding: "10px 24px",
+          borderRadius: 8,
+          border: "none",
+          width: "100%",
+          fontWeight: "bold",
+          fontSize: 16,
+          cursor: "pointer"
+        }}
+      >
+        {loading ? "Sedang Generate..." : "Generate RPM dengan AI"}
+      </button>
+
+      {generatedRPM && (
+        <div style={{ background: "#fff", padding: 20, borderRadius: 8, marginBottom: 24 }}>
+          <h3>Preview RPM (AI Output)</h3>
+          <div dangerouslySetInnerHTML={{ __html: generatedRPM }} />
+          <button
+            onClick={handleDownloadHTML}
+            style={{
+              background: "#00C851",
+              color: "white",
+              marginTop: 16,
+              padding: "10px 24px",
+              borderRadius: 8,
+              border: "none",
+              width: "100%",
+              fontWeight: "bold",
+              fontSize: 16,
+              cursor: "pointer"
+            }}
+          >
+            Download HTML
+          </button>
+        </div>
+      )}
     </div>
   );
 };
