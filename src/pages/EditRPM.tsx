@@ -35,14 +35,16 @@ Format keluaran HTML terstruktur lengkap:
 
 HTML siap download dan dibuka di browser.
 `;
+
       const response = await fetch(
-        "https://pgluhrktglhhifotebgg.supabase.co/functions/v1/generate_rpm",
+        "https://pgluhrktglhhifotebgg.functions.supabase.co/generate_rpm",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt }),
         }
       );
+
       const data = await response.json();
       setGeneratedRPM(data.content || "");
     } catch (error) {
@@ -120,5 +122,4 @@ ${generatedRPM}
   );
 };
 
-// EXPORT DEFAULT WAJIB!
 export default EditRPM;
