@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 
 const ChatboxAI = () => {
   const [chat, setChat] = useState([
-    { user: "bot", message: "Tanya apa saja (misal: 'Buatkan RPP Matematika SD tema perbandingan'), jawaban AI hanya 1x, selanjutnya silakan daftar akun ✨" },
+    { user: "bot", message: "bikin RPM Modal Klik aja ✨" },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
