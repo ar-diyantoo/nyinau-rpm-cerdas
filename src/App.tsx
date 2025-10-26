@@ -9,9 +9,10 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import CreateRPM from "./pages/CreateRPM";
-import EditRPM from "./pages/EditRPM"; // <-- INI YANG BARU
+import EditRPM from "./pages/EditRPM";
 import NotFound from "./pages/NotFound";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import Templates from '@/pages/Templates';
 
 const queryClient = new QueryClient();
 
