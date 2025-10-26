@@ -45,12 +45,18 @@ export const useAuth = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('User already registered')) {
+          toast.error('Email sudah terdaftar. Silakan login atau gunakan email lain.');
+        } else {
+          toast.error(error.message || 'Gagal membuat akun');
+        }
+        throw error;
+      }
       
       toast.success('Akun berhasil dibuat! Silakan login.');
       return { data, error: null };
     } catch (error: any) {
-      toast.error(error.message || 'Gagal membuat akun');
       return { data: null, error };
     }
   };
@@ -62,12 +68,20 @@ export const useAuth = () => {
         password,
       });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Email atau password salah. Pastikan Anda sudah daftar terlebih dahulu.');
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error('Email belum dikonfirmasi. Cek inbox email Anda.');
+        } else {
+          toast.error(error.message || 'Gagal masuk');
+        }
+        throw error;
+      }
       
       toast.success('Berhasil masuk!');
       return { data, error: null };
     } catch (error: any) {
-      toast.error(error.message || 'Gagal masuk');
       return { data: null, error };
     }
   };
