@@ -467,9 +467,8 @@ ${plan.generated_content}
                           <Edit className="w-4 h-4 mr-1" />
                           Edit
                         </Link>
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => toast.info('Fitur segera hadir')}>
-                        <Copy className="w-4 h-4" />
+                      <Button size="sm" variant="outline" onClick={() => handleDownloadRPM(plan)}>
+                        <Download className="w-4 h-4" />
                       </Button>
                       <Button 
                         size="sm" 
@@ -478,8 +477,7 @@ ${plan.generated_content}
                         className="text-destructive hover:text-destructive"
                       >
                         <Trash2 className="w-4 h-4" />
-                      </Button>
-                      <Button size="sm" variant="outline" onClick={() => toast.info('Fitur segera hadir')}>
+                      <Button size="sm" variant="outline" onClick={() => handleDownloadRPM(plan)}>
                         <Download className="w-4 h-4" />
                       </Button>
                     </div>
