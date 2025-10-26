@@ -139,6 +139,28 @@ const Dashboard = () => {
       toast.error("RPM belum tersedia atau kosong!");
       return;
     }
+    const handleCopyRPM = async (plan: any) => {
+  try {
+    // Hapus id agar Supabase auto generate id baru
+    const { id, created_at, ...rest } = plan;
+    const newPlan = {
+      ...rest,
+      title: plan.title + " (Copy)",
+      created_at: new Date().toISOString(),
+    };
+
+    const { data, error } = await supabase
+      .from("lesson_plans")
+      .insert([newPlan]);
+
+    if (error) throw error;
+
+    toast.success("RPM berhasil di-copy!");
+    loadLessonPlans();
+  } catch (error) {
+    toast.error("Gagal copy RPM!");
+  }
+};
     const content = `
 <!DOCTYPE html>
 <html lang="id">
