@@ -23,13 +23,17 @@ const ChatboxAI = () => {
     setLoading(true);
     setInput("");
     try {
-      // Contoh fetch backend AI (dummy dulu kalau belum connect api)
-      // ganti URL ini dengan endpoint API AI-mu
-      const res = await fetch("/api/generate-chat-rpp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-chat-rpp`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({ prompt: input }),
+        }
+      );
       let data;
       if (res.ok) {
         data = await res.json();
