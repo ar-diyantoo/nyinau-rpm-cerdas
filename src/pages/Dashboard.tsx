@@ -6,9 +6,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, FileText, TrendingUp, Clock, BarChart3, Search, Grid3X3, List, Edit, Copy, Trash2, Download } from 'lucide-react';
+import { Plus, FileText, TrendingUp, Clock, BarChart3, Search, Grid3X3, List, Edit, Copy, Trash2, Download, File } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
+import { exportToPDF } from '@/lib/pdfExport';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -489,10 +490,16 @@ const Dashboard = () => {
                           <Edit className="w-4 h-4 mr-1" /> Edit
                         </Link>
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleCopyRPM(plan)}>
+                      <Button size="sm" variant="outline" onClick={() => handleCopyRPM(plan)} title="Copy RPM">
                         <Copy className="w-4 h-4" />
                       </Button>
-                      <Button size="sm" variant="outline" onClick={() => handleDownloadRPM(plan)}>
+                      <Button size="sm" variant="outline" onClick={() => {
+                        exportToPDF(plan);
+                        toast.success("PDF berhasil diexport!");
+                      }} title="Export PDF">
+                        <File className="w-4 h-4" />
+                      </Button>
+                      <Button size="sm" variant="outline" onClick={() => handleDownloadRPM(plan)} title="Download HTML">
                         <Download className="w-4 h-4" />
                       </Button>
                       <Button
@@ -500,6 +507,7 @@ const Dashboard = () => {
                         variant="outline"
                         onClick={() => setDeleteId(plan.id)}
                         className="text-destructive hover:text-destructive"
+                        title="Hapus RPM"
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
