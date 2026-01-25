@@ -124,10 +124,15 @@ const Dashboard = () => {
   };
 
   const handleDownloadRPM = (plan: any) => {
-    if (!plan || !plan.generated_content) {
+    // Check if any content exists in the plan
+    const hasContent = plan.activities_opening || plan.activities_core || plan.activities_closing || 
+                       plan.meaningful_understanding || plan.learning_objectives;
+    
+    if (!plan || !hasContent) {
       toast.error("RPM belum tersedia atau kosong!");
       return;
     }
+    
     const content = `
 <!DOCTYPE html>
 <html lang="id">
@@ -135,15 +140,64 @@ const Dashboard = () => {
   <meta charset="UTF-8">
   <title>RPM - ${plan.title}</title>
   <style>
-    body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; }
-    table { border-collapse: collapse; width: 100%; }
+    body { font-family: Arial, sans-serif; padding: 20px; max-width: 900px; margin: auto; line-height: 1.6; }
+    table { border-collapse: collapse; width: 100%; margin: 16px 0; }
     th, td { border: 1px solid #888; padding: 10px; }
     th { background: #0077cc; color: #fff; }
     h1, h2, h3 { color: #333; }
+    .section { margin-bottom: 24px; }
+    .section-title { font-weight: bold; color: #0077cc; margin-bottom: 8px; }
   </style>
 </head>
 <body>
-${plan.generated_content}
+  <h1>Rencana Pembelajaran Mendalam (RPM)</h1>
+  
+  <div class="section">
+    <div class="section-title">Identitas</div>
+    <p><strong>Judul:</strong> ${plan.title || '-'}</p>
+    <p><strong>Satuan Pendidikan:</strong> ${plan.satuan_pendidikan || '-'}</p>
+    <p><strong>Jenjang:</strong> ${plan.jenjang || '-'} | <strong>Fase:</strong> ${plan.fase || '-'}</p>
+    <p><strong>Mata Pelajaran:</strong> ${plan.subject || '-'}</p>
+    <p><strong>Topik:</strong> ${plan.topic || '-'}</p>
+    <p><strong>Durasi:</strong> ${plan.duration_jp || '-'} JP</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Capaian & Tujuan Pembelajaran</div>
+    <p><strong>Capaian Pembelajaran:</strong> ${plan.capaian_pembelajaran || '-'}</p>
+    <p><strong>Tujuan Pembelajaran:</strong> ${plan.learning_objectives || '-'}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Pemahaman Bermakna</div>
+    <p>${plan.meaningful_understanding || '-'}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Pertanyaan Pemantik</div>
+    <p>${plan.trigger_questions?.replace(/\n/g, '<br>') || '-'}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Kegiatan Pembelajaran</div>
+    <p><strong>Pendahuluan:</strong><br>${plan.activities_opening?.replace(/\n/g, '<br>') || '-'}</p>
+    <p><strong>Inti:</strong><br>${plan.activities_core?.replace(/\n/g, '<br>') || '-'}</p>
+    <p><strong>Penutup:</strong><br>${plan.activities_closing?.replace(/\n/g, '<br>') || '-'}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Asesmen</div>
+    <p><strong>Asesmen Awal:</strong> ${plan.assessment_initial || '-'}</p>
+    <p><strong>Asesmen Formatif:</strong> ${plan.assessment_formative || '-'}</p>
+    <p><strong>Asesmen Sumatif:</strong> ${plan.assessment_summative || '-'}</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Sumber & Refleksi</div>
+    <p><strong>Sumber Belajar:</strong><br>${plan.resources?.replace(/\n/g, '<br>') || '-'}</p>
+    <p><strong>Refleksi Guru:</strong> ${plan.reflection_teacher || '-'}</p>
+    <p><strong>Refleksi Siswa:</strong> ${plan.reflection_students || '-'}</p>
+  </div>
 </body>
 </html>
 `;
