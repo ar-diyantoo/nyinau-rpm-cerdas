@@ -9,7 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Save, Download, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Save, Download, Loader2, Sparkles, FileText } from "lucide-react";
+import { exportToPDF } from "@/lib/pdfExport";
 
 const EditRPM: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -264,8 +265,14 @@ Berikan dalam format yang bisa langsung digunakan untuk RPM.`;
           </div>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" onClick={() => {
+            exportToPDF(plan);
+            toast.success("PDF berhasil diexport!");
+          }}>
+            <FileText className="w-4 h-4 mr-2" /> Export PDF
+          </Button>
           <Button variant="outline" onClick={handleDownload}>
-            <Download className="w-4 h-4 mr-2" /> Download
+            <Download className="w-4 h-4 mr-2" /> HTML
           </Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Save className="w-4 h-4 mr-2" />}
@@ -428,6 +435,12 @@ Berikan dalam format yang bisa langsung digunakan untuk RPM.`;
 
       {/* Bottom Actions */}
       <div className="flex justify-end gap-3 mt-8 pb-8">
+        <Button variant="outline" onClick={() => {
+          exportToPDF(plan);
+          toast.success("PDF berhasil diexport!");
+        }}>
+          <FileText className="w-4 h-4 mr-2" /> Export PDF
+        </Button>
         <Button variant="outline" onClick={handleDownload}>
           <Download className="w-4 h-4 mr-2" /> Download HTML
         </Button>
