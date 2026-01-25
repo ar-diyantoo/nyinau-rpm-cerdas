@@ -67,6 +67,16 @@ const App = () => (
             } 
           />
 
+          {/* Templates Route */}
+          <Route 
+            path="/dashboard/templates" 
+            element={
+              <ProtectedRoute>
+                <Templates />
+              </ProtectedRoute>
+            } 
+          />
+
           {/* Catch-All NotFound */}
           <Route path="*" element={<NotFound />} />
         </Routes>
