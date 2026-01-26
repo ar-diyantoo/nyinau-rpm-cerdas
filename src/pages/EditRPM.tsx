@@ -5,7 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -100,6 +100,14 @@ const EditRPM: React.FC = () => {
     try {
       setGenerating(true);
       
+      // Get the user's session token for authenticated request
+      const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+      
+      if (sessionError || !sessionData.session) {
+        toast.error("Silakan login ulang untuk menggunakan fitur AI");
+        return;
+      }
+
       const prompt = `Buatkan konten RPM untuk:
 Mata Pelajaran: ${plan.subject}
 Topik: ${plan.topic}
@@ -117,14 +125,19 @@ Berikan dalam format yang bisa langsung digunakan untuk RPM.`;
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+            "Authorization": `Bearer ${sessionData.session.access_token}`,
           },
           body: JSON.stringify({ prompt }),
         }
       );
 
       if (!res.ok) {
-        throw new Error("AI generation failed");
+        const errorData = await res.json().catch(() => ({}));
+        if (res.status === 401) {
+          toast.error("Sesi Anda telah berakhir. Silakan login ulang.");
+          return;
+        }
+        throw new Error(errorData.error || "AI generation failed");
       }
 
       const data = await res.json();
