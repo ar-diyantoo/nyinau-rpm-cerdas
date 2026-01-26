@@ -1,59 +1,17 @@
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Star } from "lucide-react";
+import { Star, Lock } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const ChatboxAI = () => {
-  const [chat, setChat] = useState([
-    { user: "bot", message: "bikin RPM Modal Klik aja ✨" },
-  ]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [alreadyTrial, setAlreadyTrial] = useState(false);
+  const chat = [
+    { user: "bot", message: "Hai! Saya Nyinauidn AI ✨ Untuk menggunakan fitur AI Chat, silakan daftar atau masuk dulu ya!" },
+  ];
   const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [chat, loading]);
-
-  const handleSend = async () => {
-    if (!input.trim() || loading || alreadyTrial) return;
-    setChat((prev) => [...prev, { user: "user", message: input }]);
-    setLoading(true);
-    setInput("");
-    try {
-      const res = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/generate-chat-rpp`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
-          },
-          body: JSON.stringify({ prompt: input }),
-        }
-      );
-      let data;
-      if (res.ok) {
-        data = await res.json();
-      } else {
-        data = { result: "Gagal connect ke AI. Coba di fitur member!" };
-      }
-      setChat((prev) => [
-        ...prev,
-        { user: "bot", message: data.result || "Gagal generate, coba lagi!" },
-      ]);
-      setAlreadyTrial(true);
-    } catch {
-      setChat((prev) => [
-        ...prev,
-        { user: "bot", message: "Terjadi error proses AI. Coba fitur member!" },
-      ]);
-      setAlreadyTrial(true);
-    }
-    setLoading(false);
-  };
+  }, [chat]);
 
   return (
     <div className="border rounded-xl shadow-sm w-full max-w-2xl bg-background mx-auto flex flex-col">
@@ -76,42 +34,24 @@ const ChatboxAI = () => {
             </span>
           </div>
         ))}
-        {loading && (
-          <div className="text-muted-foreground px-2">AI sedang generate...</div>
-        )}
         <div ref={bottomRef} />
       </div>
-        {alreadyTrial ? (
-          <div className="flex flex-col items-center border-t px-4 py-4 space-y-3">
-            <span className="text-center text-sm text-muted-foreground">
-              Sudah mencoba trial. <b>Ingin akses AI tanpa batas dan fitur penuh lainnya?</b>
-            </span>
-            <Button asChild className="w-full">
-              <Link to="/signup">
-                Daftar &amp; Masuk Nyinauidn
-              </Link>
-            </Button>
-          </div>
-        ) : (
-          <form
-            className="flex gap-2 border-t px-4 py-3"
-            onSubmit={e => {
-              e.preventDefault();
-              handleSend();
-            }}
-          >
-            <Input
-              className="flex-1"
-              placeholder="Coba: Buatkan RPP IPA SMP tema organ tumbuhan"
-              value={input}
-              disabled={loading}
-              onChange={e => setInput(e.target.value)}
-            />
-            <Button type="submit" disabled={loading || !input.trim()}>
-              Kirim
-            </Button>
-          </form>
-        )}
+      
+      {/* Show signup prompt instead of input since AI requires authentication */}
+      <div className="flex flex-col items-center border-t px-4 py-4 space-y-3">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Lock className="w-4 h-4" />
+          <span>Fitur AI Chat memerlukan akun untuk keamanan</span>
+        </div>
+        <div className="flex gap-2 w-full">
+          <Button asChild variant="outline" className="flex-1">
+            <Link to="/login">Masuk</Link>
+          </Button>
+          <Button asChild className="flex-1">
+            <Link to="/signup">Daftar Gratis</Link>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,10 +1,15 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
+
+// Input validation constants
+const MAX_PROMPT_LENGTH = 2000;
+const MIN_PROMPT_LENGTH = 5;
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -12,11 +17,71 @@ serve(async (req) => {
   }
 
   try {
-    const { prompt } = await req.json();
+    // ===== AUTHENTICATION CHECK =====
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      console.log('Missing or invalid authorization header');
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Missing authentication' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Create Supabase client with user's auth token
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      { global: { headers: { Authorization: authHeader } } }
+    );
+
+    // Verify the JWT token and get user claims
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabase.auth.getClaims(token);
+    
+    if (claimsError || !claimsData?.claims) {
+      console.log('Invalid JWT token:', claimsError?.message);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: Invalid token' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const userId = claimsData.claims.sub;
+    console.log('Authenticated user:', userId);
+
+    // ===== INPUT VALIDATION =====
+    let body;
+    try {
+      body = await req.json();
+    } catch {
+      return new Response(
+        JSON.stringify({ error: 'Invalid JSON body' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { prompt } = body;
 
     if (!prompt || typeof prompt !== 'string') {
       return new Response(
-        JSON.stringify({ error: 'Prompt is required' }),
+        JSON.stringify({ error: 'Prompt is required and must be a string' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Sanitize and validate prompt
+    const sanitizedPrompt = prompt.trim();
+
+    if (sanitizedPrompt.length < MIN_PROMPT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Prompt too short. Minimum ${MIN_PROMPT_LENGTH} characters required.` }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (sanitizedPrompt.length > MAX_PROMPT_LENGTH) {
+      return new Response(
+        JSON.stringify({ error: `Prompt too long. Maximum ${MAX_PROMPT_LENGTH} characters allowed.` }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -39,7 +104,7 @@ serve(async (req) => {
             body: JSON.stringify({
               contents: [{
                 parts: [{
-                  text: `Kamu adalah asisten AI untuk guru Indonesia yang membantu membuat Rencana Pelaksanaan Pembelajaran (RPP). Berikan response dalam bahasa Indonesia yang jelas dan terstruktur.\n\nPertanyaan: ${prompt}`
+                  text: `Kamu adalah asisten AI untuk guru Indonesia yang membantu membuat Rencana Pelaksanaan Pembelajaran (RPP). Berikan response dalam bahasa Indonesia yang jelas dan terstruktur.\n\nPertanyaan: ${sanitizedPrompt}`
                 }]
               }]
             }),
@@ -53,7 +118,7 @@ serve(async (req) => {
           const geminiData = await geminiResponse.json();
           const result = geminiData.candidates?.[0]?.content?.parts?.[0]?.text || 'Gagal generate response';
           
-          console.log('Gemini API success');
+          console.log('Gemini API success for user:', userId);
           return new Response(
             JSON.stringify({ result }),
             { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -87,7 +152,7 @@ serve(async (req) => {
             role: 'system', 
             content: 'Kamu adalah asisten AI untuk guru Indonesia yang membantu membuat Rencana Pelaksanaan Pembelajaran (RPP). Berikan response dalam bahasa Indonesia yang jelas dan terstruktur.'
           },
-          { role: 'user', content: prompt }
+          { role: 'user', content: sanitizedPrompt }
         ],
       }),
     });
@@ -101,7 +166,7 @@ serve(async (req) => {
     const lovableData = await lovableResponse.json();
     const result = lovableData.choices?.[0]?.message?.content || 'Gagal generate response';
     
-    console.log('Lovable AI success (fallback)');
+    console.log('Lovable AI success (fallback) for user:', userId);
     return new Response(
       JSON.stringify({ result }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
