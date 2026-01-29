@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, Lock, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 
 const ResetPassword = () => {
   const [password, setPassword] = useState('');
