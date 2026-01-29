@@ -30,7 +30,7 @@ import {
 import { Link, useNavigate } from 'react-router-dom';
 import { rpmTemplates, templateCategories, jenjangFilters, RPMTemplate } from '@/data/rpmTemplates';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 

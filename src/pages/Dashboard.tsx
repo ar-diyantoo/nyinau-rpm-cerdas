@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from '@/lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
 import { Plus, FileText, TrendingUp, Clock, BarChart3, Search, Grid3X3, List, Edit, Copy, Trash2, Download, File } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
