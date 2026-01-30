@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useAuth } from '@/hooks/useAuth';
+import { useAdmin } from '@/hooks/useAdmin';
 import { supabase } from '@/lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, FileText, TrendingUp, Clock, BarChart3, Search, Grid3X3, List, Edit, Copy, Trash2, Download, File } from 'lucide-react';
+import { Plus, FileText, TrendingUp, Clock, BarChart3, Search, Grid3X3, List, Edit, Copy, Trash2, Download, File, Shield, ShieldCheck } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { exportToPDF } from '@/lib/pdfExport';
@@ -31,7 +32,9 @@ import {
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
+  const { isAdmin, hasRole } = useAdmin();
   const navigate = useNavigate();
+  const isModerator = hasRole('moderator') || isAdmin;
   const [loading, setLoading] = useState(true);
   const [userData, setUserData] = useState<any>(null);
   const [lessonPlans, setLessonPlans] = useState<any[]>([]);
@@ -275,6 +278,21 @@ const Dashboard = () => {
                 Profil
               </DropdownMenuItem>
               <DropdownMenuItem>Pengaturan</DropdownMenuItem>
+              {isModerator && (
+                <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/moderator')}>
+                    <ShieldCheck className="w-4 h-4 mr-2" />
+                    Panel Moderator
+                  </DropdownMenuItem>
+                </>
+              )}
+              {isAdmin && (
+                <DropdownMenuItem onClick={() => navigate('/admin')}>
+                  <Shield className="w-4 h-4 mr-2" />
+                  Panel Admin
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut} className="text-destructive">
                 Keluar
