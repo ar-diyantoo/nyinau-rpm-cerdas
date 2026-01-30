@@ -13,6 +13,7 @@ import Profile from "./pages/Profile";
 import CreateRPM from "./pages/CreateRPM";
 import EditRPM from "./pages/EditRPM";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Templates from '@/pages/Templates';
 
@@ -77,6 +78,16 @@ const App = () => (
             element={
               <ProtectedRoute>
                 <Templates />
+              </ProtectedRoute>
+            } 
+          />
+
+          {/* Admin Route */}
+          <Route 
+            path="/admin" 
+            element={
+              <ProtectedRoute>
+                <Admin />
               </ProtectedRoute>
             } 
           />
