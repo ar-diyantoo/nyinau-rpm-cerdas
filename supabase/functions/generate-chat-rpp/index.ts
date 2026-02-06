@@ -98,16 +98,35 @@ serve(async (req) => {
         const geminiResponse = await fetch(
           `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiApiKey}`,
           {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: `Kamu adalah asisten AI untuk guru Indonesia yang membantu membuat Rencana Pelaksanaan Pembelajaran (RPP). Berikan response dalam bahasa Indonesia yang jelas dan terstruktur.\n\nPertanyaan: ${sanitizedPrompt}`
-                }]
-              }]
-            }),
-            signal: controller.signal
+            {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    contents: [{
+      parts: [{
+        text: `Kamu adalah asisten perancang pembelajaran profesional untuk guru di Indonesia. 
+Tugasmu membantu menyusun Rencana Pelaksanaan Pembelajaran (RPP) yang:
+1. Terstruktur dan sistematis sesuai praktik pedagogi yang baik.
+2. Disesuaikan dengan konteks nyata guru dan siswa (jenjang, mata pelajaran, karakteristik siswa, dan tujuan pembelajaran).
+3. Menggunakan pendekatan berbasis bukti (evidence-based), merujuk pada teori atau praktik yang diakui dalam literatur pendidikan seperti buku pedagogi, jurnal pendidikan, atau pedoman kurikulum nasional.
+4. Jika menggunakan konsep atau metode tertentu, sebutkan sumber atau nama teori/penulis yang relevan.
+5. Ditulis dalam Bahasa Indonesia yang jelas, profesional, dan mudah dipahami guru.
+
+Format output:
+- Identitas pembelajaran
+- Tujuan pembelajaran
+- Materi pokok
+- Metode/Model pembelajaran (sertakan dasar teori atau referensi singkat)
+- Langkah-langkah kegiatan pembelajaran
+- Media dan sumber belajar (cantumkan contoh buku, jurnal, atau referensi relevan)
+- Asesmen/penilaian
+
+Pertanyaan atau kebutuhan guru:
+${sanitizedPrompt}`
+      }]
+    }]
+  }),
+  signal: controller.signal
           }
         );
 
