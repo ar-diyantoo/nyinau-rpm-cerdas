@@ -7,7 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useAdmin } from '@/hooks/useAdmin';
 import { supabase } from '@/lib/supabase';
 import { Link, useNavigate } from 'react-router-dom';
-import { Plus, FileText, TrendingUp, Clock, BarChart3, Search, Grid3X3, List, Edit, Copy, Trash2, Download, File, Shield, ShieldCheck } from 'lucide-react';
+import { Plus, FileText, TrendingUp, Clock, BarChart3, Search, Grid3X3, List, Edit, Copy, Trash2, Download, File, Shield, ShieldCheck, Activity } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { toast } from 'sonner';
 import { exportToPDF } from '@/lib/pdfExport';
@@ -288,10 +288,16 @@ const Dashboard = () => {
                 </>
               )}
               {isAdmin && (
-                <DropdownMenuItem onClick={() => navigate('/admin')}>
-                  <Shield className="w-4 h-4 mr-2" />
-                  Panel Admin
-                </DropdownMenuItem>
+                <>
+                  <DropdownMenuItem onClick={() => navigate('/teacher-dashboard')}>
+                    <Activity className="w-4 h-4 mr-2" />
+                    Dashboard Guru
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin')}>
+                    <Shield className="w-4 h-4 mr-2" />
+                    Panel Admin
+                  </DropdownMenuItem>
+                </>
               )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={signOut} className="text-destructive">
